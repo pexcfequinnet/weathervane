@@ -25,69 +25,63 @@ async function getCoordinates(locationName) {
     };
 }
 
-async function getWeatherData(locationName) {
-
-    const loadingOverlay =
-        document.getElementById('loading-overlay');
-
-    if (loadingOverlay)
-        loadingOverlay.style.display = 'flex';
+async function getWeatherData(latOrName, lng = null, cityName = null) {
+    const loadingOverlay = document.getElementById('loading-overlay');
+    if (loadingOverlay) loadingOverlay.style.display = 'flex';
 
     try {
+        let latitude, longitude, finalCityName;
 
-        const location =
-            await getCoordinates(locationName);
+        // KIỂM TRA ĐẦU VÀO: Đang truyền Tọa độ trực tiếp hay truyền Chữ?
+        if (lng !== null) {
+            // Cách mới: Nếu có tham số lng -> Lấy luôn tọa độ từ ô tìm kiếm/window.onload
+            latitude = latOrName;
+            longitude = lng;
+            finalCityName = cityName;
+        } else {
+            // Cách cũ: Nếu chỉ truyền 1 tham số -> Chạy qua hàm dịch chữ thành tọa độ như cũ
+            const location = await getCoordinates(latOrName);
+            latitude = location.latitude;
+            longitude = location.longitude;
+            finalCityName = location.name;
+        }
 
+        // Tạo URL API thời tiết (Đã xóa đoạn thừa "&current=&current=" trong code cũ của bạn)
         const weatherUrl =
             `https://api.open-meteo.com/v1/forecast` +
-            `?latitude=${location.latitude}` +
-            `&longitude=${location.longitude}` +
-            `&current=&current=temperature_2m,relative_humidity_2m,wind_speed_10m,is_day,weather_code,cloud_cover,visibility` +
+            `?latitude=${latitude}` +
+            `&longitude=${longitude}` +
+            `&current=temperature_2m,relative_humidity_2m,wind_speed_10m,is_day,weather_code,cloud_cover,visibility` +
             `&hourly=temperature_2m,weather_code,is_day,cloud_cover,visibility,rain,showers,snowfall,wind_speed_10m` +
             `&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset` +
             `&forecast_days=7` +
             `&timezone=auto`;
 
-        const response =
-            await fetch(weatherUrl);
+        // SỬA LỖI DOUBLE FETCH: Gọi song song Weather API và AQI API cùng lúc, tối ưu tốc độ mạng
+        const [weatherResponse, aqiData] = await Promise.all([
+            fetch(weatherUrl),
+            getAQI(latitude, longitude)
+        ]);
 
-        if (!response.ok) {
+        // Kiểm tra trạng thái phản hồi của Weather API
+        if (!weatherResponse.ok) {
             throw new Error("Lỗi Weather API");
         }
 
-        const [weatherData, aqiData] =
-            await Promise.all([
+        // Chuyển đổi dữ liệu thời tiết sang JSON
+        const weatherData = await weatherResponse.json();
 
-                fetch(weatherUrl)
-                    .then(r => r.json()),
+        // Ghép cục dữ liệu chất lượng không khí vào tổng thể
+        weatherData.airQuality = aqiData.current;
 
-                getAQI(
-                    location.latitude,
-                    location.longitude
-                )
-            ]);
+        // Đổ toàn bộ dữ liệu lên giao diện UI
+        updateUI(weatherData, finalCityName);
 
-        weatherData.airQuality =
-            aqiData.current;
-
-        updateUI(
-            weatherData,
-            location.name
-        );
-
-    }
-    catch (error) {
-
-        console.error(error);
-
-        alert(
-            "Không tìm thấy dữ liệu thời tiết."
-        );
-    }
-    finally {
-
-        if (loadingOverlay)
-            loadingOverlay.style.display = 'none';
+    } catch (error) {
+        console.error("Lỗi getWeatherData:", error);
+        alert("Không tìm thấy dữ liệu thời tiết cho khu vực này.");
+    } finally {
+        if (loadingOverlay) loadingOverlay.style.display = 'none';
     }
 }
 
@@ -972,155 +966,136 @@ document.getElementById('btn-geo').onclick = () => {
 };
 
 
-document.getElementById('btn-search')
-.addEventListener('click', () => {
+// Khai báo các phần tử DOM ổn định ngay từ đầu
+const locationInput = document.getElementById('location-input');
+const suggestionsBox = document.getElementById('search-suggestions');
+const btnSearch = document.getElementById('btn-search');
+let searchTimeout;
 
-    const location =
-        document.getElementById('location-input')
-        .value.trim();
+// 1. HÀM XỬ LÝ KHI NGƯỜI DÙNG NHẬP CHỮ (Gõ Enter hoặc Click nút Kính lúp)
+// Hàm này giúp biến đổi text thô thành Tọa độ chuẩn xác của Open-Meteo
+async function handleTextSearch() {
+    const keyword = locationInput.value.trim();
+    if (!keyword) return;
 
-    if (location) {
-        getWeatherData(location);
+    // Xóa bộ đếm chờ gõ tự động và ẩn khung gợi ý đi
+    clearTimeout(searchTimeout);
+    suggestionsBox.style.display = 'none';
+
+    try {
+        // Gọi nhanh bản ghi đầu tiên khớp nhất để lấy tọa độ
+        const response = await fetch(
+            `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(keyword)}&count=1&language=vi&format=json`
+        );
+        const data = await response.json();
+
+        if (data.results && data.results.length > 0) {
+            const topLocation = data.results[0];
+            
+            // Điền lại tên đầy đủ lên ô input cho chuyên nghiệp (Ví dụ: Gia Lai, Tỉnh Gia Lai)
+            locationInput.value = `${topLocation.name}${topLocation.admin1 ? ', ' + topLocation.admin1 : ''}`;
+            
+            // Gửi Tọa độ + Tên sang hàm lấy thời tiết
+            getWeatherData(topLocation.latitude, topLocation.longitude, topLocation.name);
+        } else {
+            console.warn("Không tìm thấy vị trí phù hợp cho từ khóa:", keyword);
+        }
+    } catch (error) {
+        console.error("Lỗi xử lý tìm kiếm bằng chữ:", error);
     }
-});
+}
 
-const locationInput =
-    document.getElementById('location-input');
-
-document.getElementById('btn-search')
-.addEventListener('click', () => {
-
-    const location =
-        locationInput.value.trim();
-
-    if (location) {
-        getWeatherData(location);
-    }
-});
-
-const suggestionsBox =
-    document.getElementById('search-suggestions');
-
+// 2. GỌI API ĐỂ LẤY DANH SÁCH GỢI Ý KHI ĐANG GÕ (AUTOCOMPLETE)
 async function searchLocations(keyword) {
-
     if (keyword.length < 2) {
-
         suggestionsBox.style.display = 'none';
         return;
     }
 
     try {
-
-        const response =
-            await fetch(
-                `https://geocoding-api.open-meteo.com/v1/search` +
-                `?name=${encodeURIComponent(keyword)}` +
-                `&count=10` +
-                `&language=vi` +
-                `&format=json`
-            );
-
-        const data =
-            await response.json();
-
-        showSuggestions(
-            data.results || []
+        const response = await fetch(
+            `https://geocoding-api.open-meteo.com/v1/search` +
+            `?name=${encodeURIComponent(keyword)}` +
+            `&count=10` +
+            `&language=vi` +
+            `&format=json`
         );
-    }
-    catch (error) {
 
-        console.error(error);
-
-        suggestionsBox.style.display =
-            'none';
+        const data = await response.json();
+        showSuggestions(data.results || []);
+    } catch (error) {
+        console.error("Lỗi lấy danh sách gợi ý:", error);
+        suggestionsBox.style.display = 'none';
     }
 }
-function showSuggestions(results) {
 
+// 3. HIỂN THỊ DANH SÁCH GỢI Ý ĐỔ XUỐNG (UI DROP-DOWN)
+function showSuggestions(results) {
     suggestionsBox.innerHTML = '';
 
     if (results.length === 0) {
-
-        suggestionsBox.style.display =
-            'none';
-
+        suggestionsBox.style.display = 'none';
         return;
     }
 
     results.forEach(location => {
+        const item = document.createElement('div');
+        item.className = 'suggestion-item';
 
-        const item =
-            document.createElement('div');
+        const cityName = location.name;
+        const regionName = location.admin1 ? ', ' + location.admin1 : '';
+        const countryName = location.country ? ', ' + location.country : '';
 
-        item.className =
-            'suggestion-item';
+        item.innerText = `${cityName}${regionName}${countryName}`;
 
-        item.innerText =
-            `${location.name}${
-                location.admin1
-                    ? ', ' + location.admin1
-                    : ''
-            }`;
-
+        // Khi click vào dòng gợi ý: Lấy ngay tọa độ đi kèm của dòng đó
         item.onclick = () => {
+            locationInput.value = `${cityName}${regionName}`;
+            suggestionsBox.style.display = 'none';
 
-            locationInput.value =
-                item.innerText;
-
-            suggestionsBox.style.display =
-                'none';
-
-            getWeatherData(
-                location.name
-            );
+            // Gọi hàm thời tiết trực tiếp bằng Tọa độ, chính xác 100%
+            getWeatherData(location.latitude, location.longitude, cityName);
         };
 
         suggestionsBox.appendChild(item);
     });
 
-    suggestionsBox.style.display =
-        'block';
+    suggestionsBox.style.display = 'block';
 }
 
-let searchTimeout;
+// 4. ĐĂNG KÝ CÁC SỰ KIỆN (EVENT LISTENERS)
 
-locationInput.addEventListener(
-    'input',
-    () => {
+// Sự kiện gõ phím vào ô Input (Debounce 500ms)
+locationInput.addEventListener('input', () => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        searchLocations(locationInput.value.trim());
+    }, 500);
+});
 
-        clearTimeout(
-            searchTimeout
-        );
-
-        searchTimeout =
-            setTimeout(() => {
-
-                searchLocations(
-                    locationInput.value.trim()
-                );
-
-            }, 500);
-    }
-);
-
+// Sự kiện nhấn phím Enter
 locationInput.addEventListener('keydown', e => {
-
     if (e.key === 'Enter') {
-
-        const location =
-            locationInput.value.trim();
-
-        if (location) {
-            getWeatherData(location);
-        }
+        handleTextSearch();
     }
 });
+
+// Sự kiện click chuột vào nút Tìm kiếm (Kính lúp)
+btnSearch.addEventListener('click', () => {
+    handleTextSearch();
+});
+
+// Click ra ngoài vùng tìm kiếm thì tự động đóng khung gợi ý
+document.addEventListener('click', e => {
+    if (e.target !== locationInput && e.target !== suggestionsBox) {
+        suggestionsBox.style.display = 'none';
+    }
+});
+
+// 5. KHI TRANG WEB TẢI XONG (Mặc định lấy Hồ Chí Minh)
 window.onload = () => {
-
-    getWeatherData(
-        'Hồ Chí Minh'
-    );
-
+    // Tọa độ thực tế của TP. Hồ Chí Minh: Lat 10.823, Lng 106.6296
+    getWeatherData(10.823, 106.6296, 'Hồ Chí Minh');
 };
 
 // Mở bảng thông báo khi click "Thông tin nhóm"
