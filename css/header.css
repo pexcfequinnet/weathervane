@@ -12,14 +12,35 @@
     gap: 8px;
     text-transform: lowercase;
     user-select: none;
+    
+    /* --- PHẦN THÊM VÀO ĐỂ SỬA LỖI --- */
+    line-height: 1; /* Loại bỏ khoảng trắng vô hình phía trên/dưới của font chữ */
+    margin-bottom: 0;
 }
 
 /* KHUNG BAO BỌC THANH TÌM KIẾM (Quản lý chiều dài) */
 .search-box {
-    width: 70%; /* Kéo dài thanh tìm kiếm ra 70% không gian trống */
-    max-width: 750px; /* Giới hạn độ dài tối đa để không bị quá to trên màn hình rộng */
-    margin: 0 20px; /* Đẩy thanh tìm kiếm cách xa logo và nút định vị */
-    position: relative; /* CỰC KỲ QUAN TRỌNG: Giữ cho icon và bảng gợi ý dính chặt vào ô nhập */
+    max-width: 750px;
+}
+
+.geo-btn-wrapper {
+    order: 3; /* Ép nút GPS nằm ở vị trí số 3 (Bên phải) */
+}
+
+/* =========================================
+   GIAO DIỆN MOBILE (Dưới 768px - Điện thoại)
+   ========================================= */
+@media (max-width: 1080px) {
+    .search-box {
+        order: 3; /* Đẩy thanh tìm kiếm xuống vị trí số 3 (Rớt xuống dòng dưới) */
+        width: 100%; /* Ép chiếm trọn 100% màn hình */
+        max-width: 100%;
+        margin: 15px 0 0 0; /* Bỏ margin hai bên, thêm margin bên trên để cách logo một chút */
+    }
+    
+    .geo-btn-wrapper {
+        order: 2; /* Rút nút GPS lên vị trí số 2 (Nằm cùng hàng ngang với Logo) */
+    }
 }
 
 /* Ô NHẬP LIỆU BÊN TRONG */
@@ -62,37 +83,79 @@
     transform: translateY(-50%) scale(1.1);
 }
 
-/* BẢNG GỢI Ý 64 TỈNH THÀNH (Xổ xuống) */
+/* BẢNG GỢI Ý */
+/* KHUNG DANH SÁCH GỢI Ý */
 .suggestions-list {
     position: absolute;
-    top: calc(100% + 5px); /* Cách thanh tìm kiếm 5px */
+    top: calc(100% + 8px); /* Tăng khoảng cách lên một chút cho thoáng */
     width: 100%;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    border-radius: 15px;
+    
+    /* Hiệu ứng Kính mờ (Glassmorphism) */
+    background: rgba(255, 255, 255, 0.75); /* Giảm độ đặc để lộ hình nền phía sau */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px); /* Hỗ trợ Safari */
+    
+    /* Viền và bóng đổ mềm mại */
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 16px; /* Bo góc 16px cho khớp với các card thời tiết */
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
+    scrollbar-width: thin; 
+    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
     color: #333;
     z-index: 1000;
     max-height: 250px;
     overflow-y: auto;
     display: none;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
 }
 
+/* TỪNG DÒNG GỢI Ý */
 .suggestion-item {
-    padding: 12px 20px;
+    /* Quan trọng nhất: Ép mọi padding không được làm phình to kích thước thẻ */
+    box-sizing: border-box; 
+    width: 100%;
+    
+    padding: 14px 20px;
+    
+    /* Chống tràn chữ: Nếu tên địa điểm quá dài, sẽ tự động cắt thành dấu "..." */
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis;
+    
     cursor: pointer;
-    transition: background 0.2s;
-    border-bottom: 1px solid #eee;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .suggestion-item:last-child {
     border-bottom: none;
 }
 
+/* HIỆU ỨNG KHI DI CHUỘT */
 .suggestion-item:hover {
-    background: #e9ecef;
+    background: rgba(0, 0, 0, 0.06);
+    /* Giảm padding-left dịch chuyển xuống một chút để tránh đẩy chữ quá sát lề phải */
+    padding-left: 22px; 
 }
 
+/* TÙY CHỈNH THANH CUỘN (SCROLLBAR) CHO ĐẸP MẮT */
+.suggestions-list::-webkit-scrollbar {
+    width: 6px; /* Chiều rộng thanh cuộn dọc */
+}
+
+.suggestions-list::-webkit-scrollbar-track {
+    background: transparent; /* Nền của thanh cuộn trong suốt */
+    border-radius: 10px;
+}
+
+.suggestions-list::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.15); /* Màu thanh kéo mờ ảo */
+    border-radius: 10px; /* Bo tròn hai đầu thanh kéo */
+}
+
+.suggestions-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.25); /* Đậm lên một chút khi hover */
+}
 /* NÚT ĐỊNH VỊ (GPS) */
 #btn-geo {
     width: 45px;
@@ -101,5 +164,9 @@
     justify-content: center;
     align-items: center;
     backdrop-filter: blur(5px);
-    border-radius: 50%; /* Đảm bảo nút luôn tròn trịa */
+    border-radius: 50%;
+    
+    /* --- PHẦN THÊM VÀO ĐỂ SỬA LỖI --- */
+    padding: 0 !important; /* Gỡ bỏ padding mặc định của Bootstrap */
+    border: 1px solid rgba(255, 255, 255, 0.3); /* Thêm viền nhẹ để nút rõ ràng hơn (tùy chọn) */
 }
