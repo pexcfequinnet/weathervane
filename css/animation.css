@@ -1,0 +1,63 @@
+#weather-animation-container {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    pointer-events: none !important;
+    overflow: hidden !important;
+    /* Hạ xuống lớp 1 để làm nền */
+    z-index: 1 !important; 
+}
+/* Kiểu dáng hạt mưa */
+.raindrop {
+    position: absolute;
+    top: -10vh; /* Bắt đầu rơi từ trên cùng ngoài màn hình */
+    width: 2px;
+    height: 15px;
+    background: rgba(255, 255, 255, 0.4);
+    animation: fall linear infinite;
+}
+
+/* Kiểu dáng hạt tuyết */
+.snowflake {
+    position: absolute;
+    top: -10vh;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    animation: fall linear infinite;
+    filter: blur(1px); /* Tuyết hơi mờ cho ảo diệu */
+}
+
+/* Hiệu ứng rơi từ trên xuống dưới */
+@keyframes fall {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(110vh); }
+}
+
+/* Màn hình chớp trắng (Mặc định ẩn với opacity: 0) */
+.lightning-flash {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #ffffff;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 1; /* Nằm trên mưa/tuyết nhưng dưới các thẻ giao diện Glassmorphism */
+}
+
+/* Class kích hoạt animation */
+.flash-active {
+    animation: lightning 0.4s ease-out;
+}
+
+/* Mô phỏng nhịp chớp thật (lóe mạnh -> tối nhẹ -> lóe lần 2 -> tắt) */
+@keyframes lightning {
+    0% { opacity: 0; }
+    10% { opacity: 0.8; }
+    20% { opacity: 0; }
+    40% { opacity: 0.5; }
+    100% { opacity: 0; }
+}

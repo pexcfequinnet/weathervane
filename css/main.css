@@ -1,0 +1,203 @@
+/* css/main.css */
+:root {
+    /* Đổi sang lớp kính màu đen mờ để tôn chữ trắng lên */
+    --glass-bg: rgba(0, 0, 0, 0.25); 
+    --glass-border: rgba(255, 255, 255, 0.15);
+    --text-color: #ffffff;
+}
+
+/* Cập nhật lại phần thẻ body và các theme màu */
+body {
+    position: relative; 
+    z-index: 10;
+    font-family: 'Poppins', sans-serif;
+    transition: background 0.8s ease;
+    min-height: 100vh;
+    color: var(--text-color);
+    background-attachment: fixed;
+    background-size: cover;
+    background-position: center;
+    /* Thêm màu mặc định tối phòng trường hợp JS chưa kịp chạy */
+    background-color: #141e30 !important; 
+}
+
+/* Thêm !important để ép trình duyệt áp dụng màu mới */
+
+/* Ban ngày / Trời quang (Nắng): Màu xanh dương sáng mượt mà */
+body.theme-sunny { 
+    background: linear-gradient(135deg, #56CCF2 0%, #2F80ED 100%) !important; 
+}
+
+/* Ban đêm: Xanh dương cực đậm, sang trọng */
+body.theme-night { 
+    background: linear-gradient(135deg, #0B132B 0%, #1C2541 100%) !important; 
+}
+
+/* Có mây (Cloudy): Xanh lơ nhạt, nhẹ nhàng */
+body.theme-cloudy { 
+    background: linear-gradient(135deg, #7F7FD5 0%, #86A8E7 50%, #91EAE4 100%) !important; 
+}
+
+/* Âm u, sương mù (Overcast): Xám xanh dịu mắt */
+body.theme-overcast { 
+    background: linear-gradient(135deg, #606c88 0%, #3f4c6b 100%) !important; 
+}
+
+/* Trời mưa (Rain): Xám đậm pha chút xanh sẫm */
+body.theme-rain { 
+    background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%) !important; 
+}
+
+/* Tuyết rơi (Snow): Trắng xanh buốt giá, dịu mắt */
+body.theme-snow { 
+    background: linear-gradient(135deg, #E0EAFC 0%, #CFDEF3 100%) !important; 
+}
+
+/* Bão có sấm sét (Thunderstorm): Đen xám mù mịt */
+body.theme-thunderstorm { 
+    background: linear-gradient(135deg, #141E30 0%, #243B55 100%) !important; 
+}
+
+body.theme-haze { 
+    background: linear-gradient(135deg, #baa085 0%, #676f7c 100%) !important; 
+}
+
+/* Hiệu ứng Glassmorphism chung cho các panel */
+.glass-panel {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 20px;
+    border: 1px solid var(--glass-border);
+    /* Tăng độ đậm của bóng đổ để các khối panel nổi bật rõ ràng tách biệt khỏi nền */
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
+}
+
+/* Hiệu ứng tải trang */
+#loading-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6);
+    z-index: 9999;
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+/* LỚP PHỦ TOÀN MÀN HÌNH (CĂN GIỮA) */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.45); /* Làm tối nền */
+    backdrop-filter: blur(8px); /* Làm mờ thời tiết phía sau */
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 9999; /* Đảm bảo nằm trên cùng toàn bộ website */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+    visibility: visible;
+    transition: all 0.3s ease;
+}
+
+/* Trạng thái ẩn ẩn Modal */
+.modal-overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+/* CARD THÔNG BÁO KÍNH MỜ */
+.group-modal-card {
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 24px;
+    padding: 2rem;
+    width: 90%;
+    max-width: 400px;
+    color: #fff;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    transform: scale(1);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); /* Tạo hiệu ứng pop-up nảy nhẹ */
+}
+
+/* Hiệu ứng thu nhỏ lại khi ẩn đi */
+.modal-overlay.hidden .group-modal-card {
+    transform: scale(0.85);
+}
+
+/* Header & Nút Đóng */
+.modal-header-custom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.modal-header-custom h5 {
+    margin: 0;
+    font-weight: 600;
+    font-size: 1.2rem;
+}
+.close-btn {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 2rem;
+    cursor: pointer;
+    line-height: 0.5;
+    padding: 0;
+    transition: color 0.2s;
+}
+.close-btn:hover {
+    color: #ff5b5b; /* Đổi sang màu đỏ nhẹ khi hover nút đóng */
+}
+
+.modal-line {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.15);
+    margin: 1.2rem 0;
+}
+
+/* Danh sách thành viên */
+.member-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.member-list li {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.member-list li:last-child {
+    border-bottom: none;
+}
+.member-list i {
+    font-size: 1.8rem;
+    opacity: 0.8;
+}
+.member-list .role {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.65);
+}
+
+/* ========================================== */
+/* ĐỒNG BỘ THEO DAY-MODE (NỀN SÁNG)           */
+/* ========================================== */
+.day-mode .group-modal-card {
+    background: rgba(255, 255, 255, 0.75);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    color: #2c3e50;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+}
+.day-mode .close-btn { color: #2c3e50; }
+.day-mode .close-btn:hover { color: #ff5b5b; }
+.day-mode .modal-line { background: rgba(0, 0, 0, 0.08); }
+.day-mode .member-list li { border-bottom: 1px solid rgba(0, 0, 0, 0.05); }
+.day-mode .member-list .role { color: #64748b; }
+

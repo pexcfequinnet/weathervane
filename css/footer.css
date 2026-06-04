@@ -1,0 +1,108 @@
+/* Container thanh bar ngoài cùng */
+.app-footer-bar {
+    position: relative;
+    z-index: 100;
+    padding: 1.5rem 0;
+    background: transparent; /* Trong suốt hoàn toàn */
+}
+
+/* Khối bao bọc About và Menu */
+.about-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+/* Chữ "About" mặc định */
+.about-trigger {
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 500;
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    transition: color 0.2s ease;
+}
+
+/* Đổi màu chữ About khi di chuột vào chính nó */
+.about-trigger:hover {
+    color: #ffffff;
+}
+
+/* MENU DROPDOWN (Mặc định ẩn và nằm phía trên chữ About) */
+.about-menu {
+    position: absolute;
+    bottom: 100%; /* Đẩy menu mọc ngược lên trên để không bị che khuất dưới đáy màn hình */
+    right: 0;
+    min-width: 220px;
+    background: rgba(255, 255, 255, 0.12); /* Kính mờ siêu mỏng */
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 14px;
+    padding: 0.5rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    margin-bottom: 8px; /* Khoảng cách nhỏ với chữ About phía dưới */
+    
+    /* Trạng thái ẩn mặc định */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* KHU VỰC QUAN TRỌNG: Hover vào dropdown thì hiện Menu lên */
+.about-dropdown:hover .about-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0); /* Trồi lên mượt mà */
+}
+
+/* Các tùy chọn liên kết bên trong */
+.menu-item {
+    display: flex;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+    border-radius: 10px;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+/* Hover vào từng mục trong menu */
+.menu-item:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+}
+
+/* ========================================== */
+/* TỰ ĐỘNG ĐỔI MÀU THEO DAY MODE (NỀN SÁNG)   */
+/* ========================================== */
+.day-mode .about-trigger {
+    color: rgba(255, 255, 255, 0.65);
+}
+.day-mode .about-trigger:hover {
+    color: #2c3e50;
+}
+.day-mode .about-menu {
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+.day-mode .menu-item {
+    color: #2c3e50;
+}
+.day-mode .menu-item:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: #000000;
+}
+
+/* Giữ chữ trắng khi gặp các theme nền tối (Đêm, Mưa, Bão) */
+.theme-night .about-menu, .theme-rain .about-menu, .theme-thunderstorm .about-menu, .theme-cyclone .about-menu, .theme-tornado .about-menu {
+    background: rgba(255, 255, 255, 0.12) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+.theme-night .menu-item, .theme-rain .menu-item, .theme-thunderstorm .menu-item, .theme-cyclone .menu-item, .theme-tornado .menu-item {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+.theme-night .about-trigger, .theme-rain .about-trigger, .theme-thunderstorm .about-trigger, .theme-cyclone .about-trigger, .theme-tornado .about-trigger {
+    color: rgba(255, 255, 255, 0.6) !important;
+}

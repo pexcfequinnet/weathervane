@@ -1,0 +1,62 @@
+/* css/weather.css */
+.weather-main-card {
+    height: 320px;
+    border-radius: 25px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    transition: background-image 0.5s ease-in-out;
+}
+
+/* Lớp phủ đen mờ để chữ màu trắng luôn dễ đọc trên ảnh landscape */
+.weather-main-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(to right, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.2) 100%);
+    z-index: 1;
+}
+
+.overlay-content {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+}
+
+.info h2 { font-weight: 600; margin-bottom: 5px; }
+.info #current-date { font-size: 0.9rem; opacity: 0.8; }
+.info #main-temp { font-size: 4.5rem; font-weight: 700; margin: 10px 0; line-height: 1; }
+.info #weather-desc { font-size: 1.2rem; }
+
+.weather-visual img {
+    width: 120px;
+    filter: drop-shadow(0 0 10px rgba(255,255,255,0.3));
+}
+
+.details-row {
+    background: var(--glass-bg);
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+}
+
+/* AQI Widget */
+.aqi-good { background-color: #28a745 !important; color: #ffffff !important; }      /* Xanh lá */
+.aqi-moderate { background-color: #ffc107 !important; color: #000000 !important; }  /* Vàng (chữ đen cho dễ đọc) */
+.aqi-sensitive { background-color: #fd7e14 !important; color: #ffffff !important; } /* Cam */
+.aqi-unhealthy { background-color: #dc3545 !important; color: #ffffff !important; } /* Đỏ */
+.aqi-very-unhealthy { background-color: #721c24 !important; color: #ffffff !important; } /* Tím */
+.aqi-hazardous { background-color: #4f2896 !important; color: #ffffff !important; } /* Đỏ sẫm / Nâu */
+.aqi-display h2 {
+    font-size: 3rem;
+    font-weight: 700;
+    margin: 10px 0;
+}
+
+.aqi-display .badge {
+    font-size: 1rem;
+    padding: 8px 15px;
+    border-radius: 20px;
+}

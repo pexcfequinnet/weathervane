@@ -1,0 +1,59 @@
+/* css/responsive.css */
+
+/* Tablet & Mobile cỡ lớn */
+@media (max-width: 991px) {
+    .search-box {
+        width: 60%;
+    }
+    
+    .weather-main-card {
+        height: auto;
+        min-height: 300px;
+    }
+    
+    .overlay-content {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 20px;
+    }
+    
+    .details-row {
+        justify-content: center;
+    }
+}
+
+/* Điện thoại di động (Mobile nhỏ) */
+@media (max-width: 767px) {
+    header nav {
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .logo {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .search-box {
+        width: calc(100% - 60px); /* Chừa không gian cho nút định vị */
+        max-width: none;
+    }
+
+    .info #main-temp {
+        font-size: 3.5rem;
+    }
+
+    .glass-panel {
+        padding: 1rem !important; /* Thu nhỏ padding trên mobile */
+    }
+
+    .aqi-display h2 {
+        font-size: 2.5rem;
+    }
+    
+    /* Ẩn bớt hiệu ứng hover phức tạp trên mobile để mượt hơn */
+    .hourly-item:hover {
+        transform: none;
+    }
+}

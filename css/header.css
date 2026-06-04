@@ -1,0 +1,105 @@
+/* css/header.css */
+.header-section {
+    background: transparent;
+    padding-bottom: 10px;
+}
+
+.logo {
+    font-weight: 600;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-transform: lowercase;
+    user-select: none;
+}
+
+/* KHUNG BAO BỌC THANH TÌM KIẾM (Quản lý chiều dài) */
+.search-box {
+    width: 70%; /* Kéo dài thanh tìm kiếm ra 70% không gian trống */
+    max-width: 750px; /* Giới hạn độ dài tối đa để không bị quá to trên màn hình rộng */
+    margin: 0 20px; /* Đẩy thanh tìm kiếm cách xa logo và nút định vị */
+    position: relative; /* CỰC KỲ QUAN TRỌNG: Giữ cho icon và bảng gợi ý dính chặt vào ô nhập */
+}
+
+/* Ô NHẬP LIỆU BÊN TRONG */
+.search-box input {
+    width: 100%; /* Bắt buộc ép input giãn hết cỡ theo khung .search-box */
+    background: rgba(0, 0, 0, 0.4); /* Nền đen mờ 40% */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    padding: 12px 50px 12px 25px; /* Tăng padding để thanh mập mạp, dễ nhìn hơn */
+    border-radius: 30px; /* Bo tròn 2 đầu */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.search-box input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.search-box input:focus {
+    background: rgba(0, 0, 0, 0.7) !important; /* Đen đậm hơn khi click vào */
+    color: #ffffff !important;
+    box-shadow: 0 0 0 0.25rem rgba(0, 0, 0, 0.3) !important;
+    border-color: rgba(255, 255, 255, 0.5) !important;
+    outline: none;
+}
+
+/* NÚT KÍNH LÚP */
+#btn-search {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-color, #ffffff);
+    transition: transform 0.2s;
+}
+
+#btn-search:hover {
+    transform: translateY(-50%) scale(1.1);
+}
+
+/* BẢNG GỢI Ý 64 TỈNH THÀNH (Xổ xuống) */
+.suggestions-list {
+    position: absolute;
+    top: calc(100% + 5px); /* Cách thanh tìm kiếm 5px */
+    width: 100%;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    color: #333;
+    z-index: 1000;
+    max-height: 250px;
+    overflow-y: auto;
+    display: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+
+.suggestion-item {
+    padding: 12px 20px;
+    cursor: pointer;
+    transition: background 0.2s;
+    border-bottom: 1px solid #eee;
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.suggestion-item:hover {
+    background: #e9ecef;
+}
+
+/* NÚT ĐỊNH VỊ (GPS) */
+#btn-geo {
+    width: 45px;
+    height: 45px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px);
+    border-radius: 50%; /* Đảm bảo nút luôn tròn trịa */
+}
