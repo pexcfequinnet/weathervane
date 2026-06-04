@@ -245,7 +245,11 @@ function updateBackgrounds(isDay, weatherCode, visibility = 10000, windSpeed = 0
         card.style.backgroundPosition = 'center';
         card.style.backgroundColor = '#141e30'; 
     }
-
+    // Gán hình nền cho card (Giả sử ảnh nằm trong thư mục 'assets/images/')
+    card.style.backgroundImage = `url('assets/backgrounds/${bgImage}')`;
+    
+    // Cập nhật class giao diện cho body hoặc card để đổi màu chữ/hiệu ứng tương ứng
+    body.className = themeClass;
     // Reset lại toàn bộ class của body trước khi gán mới để tránh bị trùng lặp màu nền
     body.className = '';
     body.classList.add(isDay ? 'day-mode' : 'night-mode');
@@ -683,71 +687,52 @@ function getWeatherIcon(
 }
 
 function updateHourly(data) {
-
-    const hourlyCont =
-        document.getElementById('hourly-container');
-
+    const hourlyCont = document.getElementById('hourly-container');
+    if (!hourlyCont) return;
+    
     hourlyCont.innerHTML = '';
 
-    const now = new Date();
-    let startIndex = data.hourly.time.findIndex(time => new Date(time) >= now);
+    // 1. LẤY THỜI GIAN HIỆN TẠI CỦA ĐỊA PHƯƠNG ĐÓ (Dạng chuỗi: "2026-06-04T11:00")
+    const localNowStr = data.current.time; 
+
+    // 2. TÌM INDEX BẮT ĐẦU: So sánh chuỗi trực tiếp để tìm giờ hiện tại trở đi
+    let startIndex = data.hourly.time.findIndex(timeStr => timeStr >= localNowStr);
 
     if (startIndex === -1) {
         startIndex = 0;
     }
-    // Hiển thị 8 giờ tiếp theo
 
+    // 3. VÒNG LẶP HIỂN THỊ 24 GIỜ TIẾP THEO
     for (
         let i = startIndex;
-        i < startIndex + 24 &&
-        i < data.hourly.time.length;
+        i < startIndex + 24 && i < data.hourly.time.length;
         i++
     ) {
+        const rawTimeStr = data.hourly.time[i]; // Ví dụ: "2026-06-04T15:00"
 
-        const time = new Date(data.hourly.time[i]);
+        // --- XỬ LÝ TEXT THỜI GIAN THEO MÚI GIỜ GỐC ---
+        // Tách chuỗi tại chữ 'T' để lấy phần giờ: "15:00"
+        let timeString = rawTimeStr.split('T')[1]; 
 
-        const timeString =
-            time.toLocaleTimeString(
-                'vi-VN',
-                {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                }
-            );
+        // Nếu muốn hiển thị chữ "Bây giờ" cho cột đầu tiên (cho thân thiện UI)
+        if (i === startIndex) {
+            timeString = "Bây giờ";
+        }
 
-        const temp =
-            Math.round(
-                data.hourly.temperature_2m[i]
-            );
-
-        const weatherCode =
-            data.hourly.weather_code[i];
-
-        const cloudCover =
-            data.hourly.cloud_cover[i];
-
-        const visibility =
-            data.hourly.visibility[i];
-
-        const rain =
-            data.hourly.rain[i];
-
-        const showers =
-            data.hourly.showers[i];
-
-        const snowfall =
-            data.hourly.snowfall[i];
-
-        const windSpeed =
-            data.hourly.wind_speed_10m?.[i] || 0;
-        
+        const temp = Math.round(data.hourly.temperature_2m[i]);
+        const weatherCode = data.hourly.weather_code[i];
+        const cloudCover = data.hourly.cloud_cover[i];
+        const visibility = data.hourly.visibility[i];
+        const rain = data.hourly.rain[i];
+        const showers = data.hourly.showers[i];
+        const snowfall = data.hourly.snowfall[i];
+        const windSpeed = data.hourly.wind_speed_10m?.[i] || 0;
         const isDayTime = data.hourly.is_day[i] === 1;
         
+        // 4. ĐỔ VÀO HTML INTERIOR (Giữ nguyên cấu trúc giao diện của bạn)
         hourlyCont.innerHTML += `
             <div class="hourly-item">
-
                 <small>${timeString}</small>
-
                 <img
                     src="${getWeatherIcon(
                         weatherCode,
@@ -761,78 +746,56 @@ function updateHourly(data) {
                     )}"
                     width="40"
                 >
-
-                <p class="mb-0 fw-bold">
-                    ${temp}°
-                </p>
-
+                <p class="mb-0 fw-bold">${temp}°</p>
             </div>
         `;
     }
 }
 
 function updateDaily(data) {
-
-    const dailyCont =
-        document.getElementById('daily-container');
+    const dailyCont = document.getElementById('daily-container');
+    if (!dailyCont) return;
 
     dailyCont.innerHTML = '';
 
-    for (
-        let i = 0;
-        i < data.daily.time.length;
-        i++
-    ) {
+    // Mảng tự định nghĩa tên Thứ cho giao diện gọn gàng, đẹp mắt hơn
+    const daysOfWeek = ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
 
-        const date =
-            new Date(
-                data.daily.time[i]
-            );
+    for (let i = 0; i < data.daily.time.length; i++) {
+        const rawDateStr = data.daily.time[i]; // Dạng chuỗi: "2026-06-04"
 
-        const dayName =
-            date.toLocaleDateString(
-                'vi-VN',
-                {
-                    weekday: 'short'
-                }
-            );
+        let dayName = "";
 
-        const maxTemp =
-            Math.round(
-                data.daily.temperature_2m_max[i]
-            );
+        // Nếu là phần tử đầu tiên, hiển thị luôn là "Hôm nay" cho giống app thời tiết xịn
+        if (i === 0) {
+            dayName = "Hôm nay";
+        } else {
+            // Sửa lỗi múi giờ triệt để bằng cách thay dấu gạch ngang thành dấu xẹt 
+            // "2026-06-04" -> "2026/06/04". Trình duyệt sẽ hiểu đây là ngày cục bộ, không bị lệch.
+            const localDate = new Date(rawDateStr.replace(/-/g, '\/'));
+            
+            // Lấy thứ theo mảng tiếng Việt phía trên
+            dayName = daysOfWeek[localDate.getDay()];
+        }
 
-        const minTemp =
-            Math.round(
-                data.daily.temperature_2m_min[i]
-            );
+        const maxTemp = Math.round(data.daily.temperature_2m_max[i]);
+        const minTemp = Math.round(data.daily.temperature_2m_min[i]);
+        const weatherCode = data.daily.weather_code[i];
 
-        const weatherCode =
-            data.daily.weather_code[i];
-
+        // Đổ dữ liệu vào HTML (Giữ nguyên cấu trúc CSS cũ của bạn)
         dailyCont.innerHTML += `
             <div class="daily-item">
-
-                <span>
-                    ${dayName}
-                </span>
-
-            <img
-                src="${getWeatherIcon(
-                    weatherCode,
-                    true
-                )}"
-                width="35"
-            >
-
-                <span>
-                    ${maxTemp}° / ${minTemp}°
-                </span>
-
+                <span>${dayName}</span>
+                <img
+                    src="${getWeatherIcon(weatherCode, true)}"
+                    width="35"
+                >
+                <span>${maxTemp}° / ${minTemp}°</span>
             </div>
         `;
     }
 }
+
 async function getWeatherByCoords(lat, lon) {
 
     const loadingOverlay =
