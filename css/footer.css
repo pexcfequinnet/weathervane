@@ -1,4 +1,9 @@
 /* Container thanh bar ngoài cùng */
+.title-open-meteo {
+    font-weight: 600;
+    font-synthesis: none;
+}
+
 .app-footer-bar {
     position: relative;
     z-index: 100;

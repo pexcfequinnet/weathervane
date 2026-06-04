@@ -4,7 +4,7 @@
 @font-face {
     font-family: 'Poppins Unicode';
     src: url('../fonts/fz-poppings-regular.ttf') format('truetype');
-    font-weight: 400;
+    font-weight: 600;
     font-style: normal;
     font-display: swap; /* Mẹo tối ưu: Hiển thị tạm font hệ thống trong lúc chờ load file font */
 }
@@ -12,7 +12,7 @@
 @font-face {
     font-family: 'Poppins Unicode';
     src: url('../fonts/fz-poppings-bold.ttf') format('truetype');
-    font-weight: 700; /* Hoặc 700 tùy độ đậm của file */
+    font-weight: 800; /* Hoặc 700 tùy độ đậm của file */
     font-style: normal;
     font-display: swap;
 }
@@ -26,6 +26,9 @@
 
 /* Cập nhật lại phần thẻ body và các theme màu */
 body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
     position: relative; 
     z-index: 10;
     font-family: 'Poppins Unicode', sans-serif;
